@@ -1,43 +1,211 @@
-# Este é um teste para desenvolvedores
-
-# possui 5 testes
+# Simples backend de cadastro e autenticação de usuário
 
 ## Introdução
 
-Este projeto possui um banco de dados fake em fakeData.js com apenas um registro.
-A ideia é melhorar e o CRUD escrito nos 4 arquivos de teste abaixo.
+Esse é um backend com um simples cadastro de usuário e autenticação, também possui uma simples regras de permissões.
 
-Será a validada a forma de escrita de código.
-Escreva códigos que humanos consigam entender.
+Conta com uma base de dados fake apenas para testes, a base já vai com um cadastro de nível administrativo.
 
-Fique a vontade para fazer modificaçoes nos serviços, comentários em código, estrutura, mas seja objetivo.
+As permissões estão dividas em duas partes, user e admin.
 
-## teste1.js
+Foi desenvolvido em node versão 16.15.0
 
-GET em /user 
+### Role user
+O que pode fazer ?
 
-Possuimos neste arquivo um serviço que faz uma busca no banco fake e retorna um registro.
-Este código funciona, mas é possivel melhorar.
-Veja o que pode deixar ele melhor escrito e mais performatico.
+Visualizar outros cadastros (todos ou individual)
+Editar o próprio cadastro.
 
-## teste2.js
+O que não pode fazer?
 
-POST em /users, descubra a intenção dele e o corrija.
+Editar suas permissões
+Excluir seu cadastro.
 
-## teste3.js
+### Role admin
 
-Este procura um usuário e o deleta da base.
-Retorne sucesso para o client caso realmente tenha sido excluido e deixe o código mais performatico.
+O que não pode fazer?
 
-## teste4.js
+O usuário com permissão admin poderá executar o CRUD completo em qualquer cadastro.
 
-Atualiza os dados de um usuário especifico.
 
-## teste5.js
 
-Retorne quantas vezes determinado usuário foi lido no teste1.
+## Como executar ?
 
-## teste 6
+```bs
+Faça a cópia do repositório:
+git clone git@github.com:gleisoncoruja/auth-node.git 
 
-Definina uma forma de criar permissão para o usuario, defina se o usuário pode deletar ou atualizar usuários. Crie um middleware para validar essas permissões e adicione no teste4 e teste3.
+Entre na pasta do projeto e instale as dependências:
+yarn install
+
+Renomeie o arquivo .env-copy para .env:
+
+Execute o servidor:
+npm start
+
+Abra no seu navegador:
+http://localhost:3000/
+
+Se tudo estiver correto aparecerá a seguinte mensagem:
+
+Api Working!
+
+```
+
+## Quais são os endpoints e como testar?
+
+### Antes de mais nada recomendo utilizar o postman ou insomnia para realizer os teste.
+
+### Autenticação 
+```bs
+Endpoint
+POST - http://localhost:3000/api/users/auth
+
+body json
+{	
+	"username": "admin",
+	"password": "sfcBrazil"
+}
+
+Exemplo de retorno
+{
+	"userId": 1,
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE2ODY1NDY3NTQsImV4cCI6MTY4NjgwNTk1NH0.-MIxccnj12d8pp776oLINq3m5HNMWSxRdL701Kbnrck"
+}
+```
+
+### Listar usuários 
+```bs
+Endpoint
+GET - http://localhost:3000/api/users/
+
+Exemplo de retorno
+[
+	{
+		"id": 1,
+		"name": "Administrador",
+		"job": "CTO",
+		"email": "admin@sfcbrazil.com",
+		"username": "admin",
+		"role": [
+			"user",
+			"admin"
+		],
+		"readings": 0
+	}
+]
+```
+
+### Retornar informações por username
+```bs
+Endpoint
+GET - http://localhost:3000/api/users/user/{username}
+
+Exemplo de retorno
+{
+	"id": 1,
+	"name": "Administrador",
+	"job": "CTO",
+	"email": "admin@sfcbrazil.com",
+	"username": "admin",
+	"role": [
+		"user",
+		"admin"
+	],
+	"readings": 1
+}
+```
+
+### Retornar informações do usuário logado
+```bs
+Endpoint
+GET - http://localhost:3000/api/users/user/
+
+Exemplo de retorno
+{
+	"id": 1,
+	"name": "Administrador",
+	"job": "CTO",
+	"email": "admin@sfcbrazil.com",
+	"username": "admin",
+	"role": [
+		"user",
+		"admin"
+	],
+	"readings": 1
+}
+```
+
+### Retornar visualizações recebidas no cadastro
+```bs
+Endpoint
+GET - http://localhost:3000/api/users/user/{username}/readings
+
+Exemplo de retorno
+{
+	"msg": "Usuário Administrador foi lido 4 vezes"
+}
+```
+
+### Cadastrar usuário
+```bs
+Endpoint
+POST - http://localhost:3000/api/users/
+
+body json
+{
+	"name": "Gleison Souza",
+	"job": "Desenvolvedor FullStack",
+	"email": "gleison.lsouza@gmail.com",
+	"username": "gleison",
+	"password": "sfcBrazil"
+}
+
+Exemplo de retorno
+{
+	"userId": 2,
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoiZ2xlaXNvbiIsImlhdCI6MTY4NjU0NzE0NywiZXhwIjoxNjg2ODA2MzQ3fQ.04uFYLr7j8k9PobIYT4jjsp78SnzNA2S9FKSpBho1QY"
+}
+```
+
+### Editar usuário
+```bs
+Endpoint
+PATCH - http://localhost:3000/api/users/user/{username}
+
+body json
+{
+	"name": "Gleison Lopes",
+    "role": [
+			"user",
+			"admin"
+		],
+}
+
+Exemplo de retorno
+{
+	"id": 2,
+	"name": "Gleison Lopes",
+	"job": "Programador FullStack",
+	"role": [
+		"user",
+        "admin"
+	],
+	"email": "gleison@gmail.com.br",
+	"username": "gleison",
+	"readings": 0
+}
+```
+
+### Deletar usuário
+```bs
+Endpoint
+DELETE - http://localhost:3000/api/users/user/{username}
+
+
+Exemplo de retorno
+{
+	"msg": "Usuário gleison deletado com sucesso!"
+}
+```
 
